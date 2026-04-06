@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymRoam — Find Your Sweat. Anywhere.</title>
+    <meta name="description" content="GymRoam helps you find gyms, fitness studios, and wellness centers wherever you travel. Search any city, get directions, and never miss a workout.">
+    <meta name="keywords" content="gym finder, travel fitness, gym near me, workout travel, fitness app, yoga studio finder">
+    <meta property="og:title" content="GymRoam — Find Your Sweat. Anywhere.">
+    <meta property="og:description" content="Search any city and instantly discover nearby gyms with photos, directions, and details.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="og-image.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --bg:#0A0A0B;--surface:#111114;--surface2:#18181D;--border:#1F1F26;
+            --text:#E8E8EE;--muted:#8A8A99;--dim:#55555F;--accent:#E8FF3C;
+        }
+        html{scroll-behavior:smooth;}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden;}
+        a{color:var(--accent);text-decoration:none;}
+
+        /* NAV */
+        nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:18px 24px;background:rgba(10,10,11,0.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
+        .nav-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+        .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#0A0A0B;position:relative;}
+        .logo-icon::after{content:'';position:absolute;top:5px;right:6px;width:4px;height:4px;background:#0A0A0B;border-radius:50%;}
+        .logo-text{font-size:15px;font-weight:800;color:var(--text);letter-spacing:3px;}
+        .nav-links{display:flex;align-items:center;gap:32px;list-style:none;}
+        .nav-links a{color:var(--dim);font-size:13px;font-weight:500;transition:color 0.2s;}
+        .nav-links a:hover{color:var(--text);}
+        .nav-cta{background:var(--accent)!important;color:#0A0A0B!important;padding:7px 18px;border-radius:8px;font-weight:700!important;}
+        .mobile-menu{display:none;background:none;border:none;color:var(--text);font-size:22px;cursor:pointer;}
+
+        /* HERO */
+        .hero{min-height:100vh;display:flex;align-items:center;padding:120px 24px 80px;overflow:hidden;}
+        .hero-inner{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+        .hero-text{z-index:1;}
+        .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(232,255,60,0.15);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--accent);margin-bottom:28px;}
+        .badge-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+        h1{font-size:clamp(36px,4.5vw,54px);font-weight:900;line-height:1.08;letter-spacing:-2px;margin-bottom:20px;}
+        .accent{color:var(--accent);}
+        .hero-text>p{font-size:17px;color:var(--muted);max-width:400px;margin-bottom:36px;}
+        .btn{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#0A0A0B;padding:14px 28px;border-radius:12px;font-size:15px;font-weight:700;transition:transform 0.2s,box-shadow 0.2s;}
+        .btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,255,60,0.2);}
+        .btn svg{width:18px;height:18px;}
+
+        /* PHONE MOCKUPS */
+        .hero-phones{position:relative;display:flex;justify-content:center;align-items:center;height:560px;}
+        .phone{width:240px;height:520px;background:var(--bg);border-radius:36px;border:2px solid var(--border);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.5);position:absolute;}
+        .phone img{width:100%;height:100%;object-fit:cover;}
+        .phone-1{z-index:3;transform:translateX(0);}
+        .phone-2{z-index:2;transform:translateX(90px) scale(0.9);opacity:0.6;}
+        .phone-3{z-index:1;transform:translateX(-90px) scale(0.9);opacity:0.6;}
+        .phone-glow{position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(232,255,60,0.06) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+
+        /* DIVIDER */
+        .divider{width:48px;height:1px;background:var(--border);margin:0 auto;}
+
+        /* FEATURES */
+        .features{padding:120px 24px;max-width:720px;margin:0 auto;}
+        .features-list{display:flex;flex-direction:column;gap:56px;}
+        .feature-row{display:flex;gap:24px;align-items:flex-start;}
+        .feature-num{font-size:13px;font-weight:700;color:var(--dim);min-width:28px;padding-top:2px;}
+        .feature-row h3{font-size:18px;font-weight:700;margin-bottom:6px;}
+        .feature-row p{font-size:15px;color:var(--muted);line-height:1.7;}
+
+
+        /* TRAINERS */
+        .trainers{padding:120px 24px;border-top:1px solid var(--border);}
+        .trainers-inner{max-width:720px;margin:0 auto;}
+        .trainers-inner h2{font-size:clamp(28px,3.5vw,40px);font-weight:900;letter-spacing:-1px;margin-bottom:16px;}
+        .trainers-inner>p{font-size:16px;color:var(--muted);margin-bottom:48px;max-width:500px;}
+        .trainer-points{display:flex;flex-direction:column;gap:20px;margin-bottom:48px;}
+        .trainer-point{display:flex;gap:14px;align-items:center;}
+        .check{width:20px;height:20px;min-width:20px;border:2px solid var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--accent);}
+        .trainer-point span{font-size:15px;color:var(--muted);}
+        .price-line{font-size:14px;color:var(--dim);}
+
+        /* FOOTER */
+        footer{border-top:1px solid var(--border);padding:48px 24px;}
+        .footer-inner{max-width:720px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;}
+        .footer-links{display:flex;gap:24px;}
+        .footer-links a{font-size:13px;color:var(--dim);transition:color 0.2s;}
+        .footer-links a:hover{color:var(--muted);}
+        .footer-bottom{max-width:720px;margin:32px auto 0;padding-top:24px;border-top:1px solid var(--border);font-size:12px;color:var(--dim);display:flex;justify-content:space-between;}
+
+        /* MOBILE */
+        @media(max-width:900px){
+            .hero-inner{grid-template-columns:1fr;text-align:center;gap:48px;}
+            .hero-text>p{margin:0 auto 36px;}
+            .hero-phones{height:420px;}
+            .phone{width:200px;height:432px;}
+            .phone-2,.phone-3{display:none;}
+        }
+        @media(max-width:640px){
+            .nav-links{display:none;}
+            .mobile-menu{display:block;}
+            .feature-row{flex-direction:column;gap:8px;}
+            .feature-num{min-width:auto;}
+            .footer-inner{flex-direction:column;}
+            .footer-bottom{flex-direction:column;gap:4px;}
+            .hero-phones{height:360px;}
+            .phone{width:180px;height:370px;}
+        }
+
+        .fade-up{opacity:0;transform:translateY(20px);transition:all 0.5s ease;}
+        .fade-up.visible{opacity:1;transform:translateY(0);}
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="#" class="logo">
+                <div class="logo-icon">G</div>
+                <span class="logo-text">GYMROAM</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#trainers">Trainers</a></li>
+                <li><a href="mailto:gymroamapp@gmail.com">Contact</a></li>
+                <li><a href="#top" class="nav-cta">Download</a></li>
+            </ul>
+            <button class="mobile-menu" onclick="document.querySelector('.nav-links').classList.toggle('show')" aria-label="Menu">&#9776;</button>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="top">
+        <div class="hero-inner">
+            <div class="hero-text fade-up">
+                <div class="badge">
+                    <span class="badge-dot"></span>
+                    Available on iOS
+                </div>
+                <h1>Find Your Sweat.<br><span class="accent">Anywhere.</span></h1>
+                <p>Search any city. See real photos. Get directions. Never miss a workout.</p>
+                <a href="#" class="btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                    Download for iOS
+                </a>
+            </div>
+            <div class="hero-phones fade-up">
+                <div class="phone-glow"></div>
+                <div class="phone phone-3">
+                    <img src="screen-list.png" alt="GymRoam gym list" loading="lazy">
+                </div>
+                <div class="phone phone-1">
+                    <img src="screen-map.png" alt="GymRoam map view" loading="lazy">
+                </div>
+                <div class="phone phone-2">
+                    <img src="screen-discover.png" alt="GymRoam discover" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEPARATOR -->
+    <div class="divider"></div>
+
+    <div class="divider"></div>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="features-list">
+            <div class="feature-row fade-up">
+                <span class="feature-num">01</span>
+                <div>
+                    <h3>Search any city</h3>
+                    <p>Type a city name or let GPS do the work. Gyms, studios, and wellness centers populate automatically within your radius.</p>
+                </div>
+            </div>
+            <div class="feature-row fade-up">
+                <span class="feature-num">02</span>
+                <div>
+                    <h3>Real photos and contact</h3>
+                    <p>See actual photos, phone numbers, and websites. Call the gym or get directions with one tap.</p>
+                </div>
+            </div>
+            <div class="feature-row fade-up">
+                <span class="feature-num">03</span>
+                <div>
+                    <h3>Filter by what you do</h3>
+                    <p>Lifting, yoga, pilates, cycling, CrossFit, run clubs, HIIT, wellness. Find exactly what fits your routine.</p>
+                </div>
+            </div>
+            <div class="feature-row fade-up">
+                <span class="feature-num">04</span>
+                <div>
+                    <h3>Save and compare</h3>
+                    <p>Shortlist gyms, mark the ones you've visited, and let AI rank your options based on how you train.</p>
+                </div>
+            </div>
+            <div class="feature-row fade-up">
+                <span class="feature-num">05</span>
+                <div>
+                    <h3>Train with friends</h3>
+                    <p>See where your friends work out across the world. Like their activity. Track your own cities and achievements.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- TRAINERS -->
+    <section class="trainers" id="trainers">
+        <div class="trainers-inner">
+            <h2 class="fade-up">For trainers and coaches</h2>
+            <p class="fade-up">Get discovered by travelers visiting your city.</p>
+            <div class="trainer-points fade-up">
+                <div class="trainer-point">
+                    <div class="check">&#10003;</div>
+                    <span>Post promotions and drop-in offers</span>
+                </div>
+                <div class="trainer-point">
+                    <div class="check">&#10003;</div>
+                    <span>Share your class schedule and pricing</span>
+                </div>
+                <div class="trainer-point">
+                    <div class="check">&#10003;</div>
+                    <span>Public profile with bio, photos, and Instagram</span>
+                </div>
+                <div class="trainer-point">
+                    <div class="check">&#10003;</div>
+                    <span>Receive and respond to messages from interested clients</span>
+                </div>
+            </div>
+            <a href="#top" class="btn">Get started</a>
+            <p class="price-line" style="margin-top:16px;">Trainer Pro starts at $9.99/month</p>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-left">
+                <a href="#" class="logo">
+                    <div class="logo-icon">G</div>
+                    <span class="logo-text">GYMROAM</span>
+                </a>
+            </div>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <a href="mailto:gymroamapp@gmail.com">Contact</a>
+                <a href="https://instagram.com/gymroamapp" target="_blank" rel="noopener">Instagram</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 GymRoam</span>
+            <span>A <a href="https://levestudios.com" target="_blank" rel="noopener" style="color:var(--dim);text-decoration:none;">Leve AI Studios</a> Company</span>
+        </div>
+    </footer>
+
+    <script>
+        const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible');});},{threshold:0.15});
+        document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+    </script>
+
+</body>
+</html>
