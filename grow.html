@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymRoam — Grow Your Gym</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --bg:#0A0A0B;--surface:#111114;--surface2:#18181D;--border:#1F1F26;
+            --text:#E8E8EE;--muted:#8A8A99;--dim:#55555F;--accent:#E8FF3C;
+        }
+        html{scroll-behavior:smooth;}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+
+        nav{padding:18px 24px;background:rgba(10,10,11,0.8);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+        .nav-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+        .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#0A0A0B;position:relative;}
+        .logo-icon::after{content:'';position:absolute;top:5px;right:6px;width:4px;height:4px;background:#0A0A0B;border-radius:50%;}
+        .logo-text{font-size:15px;font-weight:800;color:var(--text);letter-spacing:3px;}
+        .back-link{font-size:13px;color:var(--dim);transition:color 0.2s;}
+        .back-link:hover{color:var(--text);}
+
+        .hero{max-width:720px;margin:0 auto;padding:64px 24px 0;text-align:center;}
+        .hero h1{font-size:clamp(32px,4vw,44px);font-weight:900;letter-spacing:-1.5px;margin-bottom:12px;}
+        .hero h1 span{color:var(--accent);}
+        .hero p{font-size:17px;color:var(--muted);max-width:480px;margin:0 auto 48px;}
+
+        .values{max-width:720px;margin:0 auto;padding:0 24px 64px;display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .value-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;}
+        .value-icon{font-size:20px;margin-bottom:12px;width:40px;height:40px;background:var(--surface2);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--accent);}
+        .value-card h3{font-size:15px;font-weight:700;margin-bottom:6px;}
+        .value-card p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+        .divider{width:48px;height:1px;background:var(--border);margin:0 auto 64px;}
+
+        .how{max-width:720px;margin:0 auto;padding:0 24px 64px;}
+        .how h2{font-size:24px;font-weight:900;letter-spacing:-0.5px;margin-bottom:32px;text-align:center;}
+        .steps{display:flex;flex-direction:column;gap:24px;}
+        .step{display:flex;gap:16px;align-items:flex-start;}
+        .step-num{min-width:32px;height:32px;background:var(--surface);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--accent);}
+        .step-text h4{font-size:15px;font-weight:700;margin-bottom:2px;}
+        .step-text p{font-size:13px;color:var(--muted);}
+
+        .form-section{max-width:720px;margin:0 auto;padding:0 24px 80px;}
+        .form-section h2{font-size:24px;font-weight:900;letter-spacing:-0.5px;margin-bottom:8px;text-align:center;}
+        .form-section>p{font-size:14px;color:var(--muted);text-align:center;margin-bottom:32px;}
+        .form-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;}
+        .form-card label{display:block;font-size:12px;font-weight:600;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+        .form-card input,.form-card select,.form-card textarea{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:16px;outline:none;transition:border-color 0.2s;}
+        .form-card input:focus,.form-card textarea:focus{border-color:var(--accent);}
+        .form-card select{cursor:pointer;-webkit-appearance:none;appearance:none;}
+        .form-card textarea{resize:vertical;min-height:80px;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .section-label{font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;margin-top:24px;padding-top:24px;border-top:1px solid var(--border);}
+        .section-label:first-child{margin-top:0;padding-top:0;border-top:none;}
+        .helper{font-size:11px;color:var(--dim);margin-top:-12px;margin-bottom:16px;}
+        .required{color:#FF4D6D;}
+        .submit-btn{width:100%;background:var(--accent);color:#0A0A0B;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform 0.2s,box-shadow 0.2s;margin-top:8px;}
+        .submit-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(232,255,60,0.15);}
+        .submit-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+        .form-note{font-size:12px;color:var(--dim);text-align:center;margin-top:16px;}
+
+        .success{display:none;text-align:center;padding:48px 24px;}
+        .success-icon{width:64px;height:64px;background:rgba(232,255,60,0.1);border:2px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:var(--accent);}
+        .success h3{font-size:20px;font-weight:800;margin-bottom:8px;}
+        .success p{font-size:14px;color:var(--muted);max-width:400px;margin:0 auto;}
+        .success .next-steps{text-align:left;max-width:400px;margin:24px auto 0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;}
+        .success .next-steps h4{font-size:14px;font-weight:700;margin-bottom:12px;}
+        .success .next-steps ol{padding-left:20px;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px;}
+
+        .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#0A0A0B;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:transform 0.3s ease;z-index:200;pointer-events:none;}
+        .toast.show{transform:translateX(-50%) translateY(0);}
+
+        @media(max-width:640px){
+            .values{grid-template-columns:1fr;}
+            .form-row{grid-template-columns:1fr;}
+            .hero{padding:48px 24px 0;}
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">G</div>
+                <span class="logo-text">GYMROAM</span>
+            </a>
+            <a href="index.html" class="back-link">&larr; Back to site</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Grow Your <span>Gym</span></h1>
+        <p>GymRoam sends travelers and locals to your door. Get listed, get seen, get booked.</p>
+    </div>
+
+    <div class="values">
+        <div class="value-card">
+            <div class="value-icon">&#9906;</div>
+            <h3>Get discovered</h3>
+            <p>Travelers search for gyms in your area daily. Your listing appears on their map with photos, details, and directions.</p>
+        </div>
+        <div class="value-card">
+            <div class="value-icon">&#9733;</div>
+            <h3>Build trust</h3>
+            <p>Verified Partner badge on your listing. Respond to reviews. Show visitors you're traveler-friendly.</p>
+        </div>
+        <div class="value-card">
+            <div class="value-icon">&#8599;</div>
+            <h3>See your impact</h3>
+            <p>Track how many people view your gym, save it, tap directions, and actually visit through GymRoam.</p>
+        </div>
+        <div class="value-card">
+            <div class="value-icon">&#9881;</div>
+            <h3>Control your listing</h3>
+            <p>Update hours, photos, amenities, day pass pricing, and visitor deals — all from your dashboard.</p>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="how">
+        <h2>How it works</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-text">
+                    <h4>Fill out the application</h4>
+                    <p>Tell us about your gym and provide proof of ownership. Takes about 5 minutes.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-text">
+                    <h4>We review and verify</h4>
+                    <p>Our team reviews your documents and confirms ownership. Usually within 24-48 hours.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-text">
+                    <h4>Receive your login</h4>
+                    <p>Once approved, we send you a temporary passcode to sign into the GymRoam app as a verified partner.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-text">
+                    <h4>Manage your listing</h4>
+                    <p>Set your own password, access your dashboard, update photos, hours, pricing, and start getting discovered.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- APPLICATION FORM -->
+    <div class="form-section">
+        <h2>Partner Application</h2>
+        <p>All fields marked <span style="color:#FF4D6D;">*</span> are required.</p>
+
+        <div class="form-card" id="formCard">
+
+            <!-- SECTION 1: Personal Info -->
+            <div class="section-label" style="margin-top:0;padding-top:0;border-top:none;">Your Information</div>
+
+            <div class="form-row">
+                <div>
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" id="ownerName" placeholder="John Smith" maxlength="100">
+                </div>
+                <div>
+                    <label>Your Role <span class="required">*</span></label>
+                    <select id="ownerRole">
+                        <option value="Owner">Owner</option>
+                        <option value="Co-Owner">Co-Owner</option>
+                        <option value="General Manager">General Manager</option>
+                        <option value="Operations Director">Operations Director</option>
+                        <option value="Marketing Director">Marketing Director</option>
+                        <option value="Franchise Owner">Franchise Owner</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <label>Email <span class="required">*</span></label>
+                    <input type="email" id="ownerEmail" placeholder="you@yourgym.com" maxlength="150">
+                </div>
+                <div>
+                    <label>Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="ownerPhone" placeholder="+1 (555) 123-4567" maxlength="20">
+                </div>
+            </div>
+
+            <!-- SECTION 2: Gym Info -->
+            <div class="section-label">Gym Information</div>
+
+            <label>Gym / Studio Name <span class="required">*</span></label>
+            <input type="text" id="gymName" placeholder="e.g. Ironworks Fitness" maxlength="150">
+
+            <label>Full Address <span class="required">*</span></label>
+            <input type="text" id="gymAddress" placeholder="123 Main St, Miami, FL 33131" maxlength="250">
+
+            <div class="form-row">
+                <div>
+                    <label>City <span class="required">*</span></label>
+                    <input type="text" id="gymCity" placeholder="e.g. Miami" maxlength="100">
+                </div>
+                <div>
+                    <label>State / Country <span class="required">*</span></label>
+                    <input type="text" id="gymState" placeholder="e.g. Florida, US" maxlength="100">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div>
+                    <label>Gym Phone Number</label>
+                    <input type="tel" id="gymPhone" placeholder="Gym's main line" maxlength="20">
+                </div>
+                <div>
+                    <label>Gym Type <span class="required">*</span></label>
+                    <select id="gymType">
+                        <option value="Gym / Fitness Center">Gym / Fitness Center</option>
+                        <option value="CrossFit Box">CrossFit Box</option>
+                        <option value="Yoga Studio">Yoga Studio</option>
+                        <option value="Pilates Studio">Pilates Studio</option>
+                        <option value="Boxing / MMA Gym">Boxing / MMA Gym</option>
+                        <option value="Cycling Studio">Cycling Studio</option>
+                        <option value="Wellness / Recovery">Wellness / Recovery</option>
+                        <option value="Personal Training Studio">Personal Training Studio</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <label>Gym Website</label>
+            <input type="text" id="gymWebsite" placeholder="www.yourgym.com" maxlength="200">
+
+            <label>Gym Instagram</label>
+            <input type="text" id="gymInstagram" placeholder="@yourgym" maxlength="100">
+
+            <!-- SECTION 3: Verification -->
+            <div class="section-label">Quick Verification</div>
+
+            <label>How can we verify you manage this gym? <span class="required">*</span></label>
+            <textarea id="verifyMethod" placeholder="e.g. 'I'm listed as the owner on Google Business Profile' or 'Check our Instagram @mygym — I manage the account' or 'Call the gym and ask for me'"></textarea>
+            <p class="helper">Just give us the easiest way to confirm. We'll reach out if we need anything else.</p>
+
+            <!-- SECTION 4: Additional -->
+            <div class="section-label">A Few More Details</div>
+
+            <label>Do you accept day passes or drop-in visitors?</label>
+            <select id="dayPass">
+                <option value="Yes">Yes</option>
+                <option value="No">No, members only</option>
+                <option value="Sometimes">Case by case</option>
+            </select>
+
+            <label>Anything else?</label>
+            <textarea id="gymNotes" placeholder="Tell us what makes your gym unique, or any questions you have..."></textarea>
+
+            <button class="submit-btn" id="submitBtn" onclick="submitApplication()">Submit Application</button>
+            <p class="form-note">We review every application personally. Expect to hear from us within 24-48 hours.</p>
+        </div>
+
+        <!-- SUCCESS -->
+        <div class="success" id="successState">
+            <div class="success-icon">&#10003;</div>
+            <h3>Application received</h3>
+            <p>We're reviewing your submission. You'll hear from us at the email you provided within 24-48 hours.</p>
+            <div class="next-steps">
+                <h4>What happens next</h4>
+                <ol>
+                    <li>We verify your ownership documents</li>
+                    <li>Once approved, we email you a temporary passcode</li>
+                    <li>Download GymRoam and sign in with your email + passcode</li>
+                    <li>Set your own password and access your Partner Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyB9BRB-kO_LKsBj1-h7142ejbWyskwsMAQ",
+            authDomain: "gymroam-ad7dc.firebaseapp.com",
+            projectId: "gymroam-ad7dc",
+            storageBucket: "gymroam-ad7dc.firebasestorage.app",
+            messagingSenderId: "882063435578",
+            appId: "1:882063435578:web:partner"
+        });
+
+        const db = getFirestore(app);
+
+        window.submitApplication = async function() {
+            const fields = {
+                ownerName: document.getElementById('ownerName').value.trim(),
+                ownerRole: document.getElementById('ownerRole').value,
+                ownerEmail: document.getElementById('ownerEmail').value.trim(),
+                ownerPhone: document.getElementById('ownerPhone').value.trim(),
+                gymName: document.getElementById('gymName').value.trim(),
+                gymAddress: document.getElementById('gymAddress').value.trim(),
+                gymCity: document.getElementById('gymCity').value.trim(),
+                gymState: document.getElementById('gymState').value.trim(),
+                gymPhone: document.getElementById('gymPhone').value.trim(),
+                gymType: document.getElementById('gymType').value,
+                gymWebsite: document.getElementById('gymWebsite').value.trim(),
+                gymInstagram: document.getElementById('gymInstagram').value.trim(),
+                verifyMethod: document.getElementById('verifyMethod').value.trim(),
+                dayPass: document.getElementById('dayPass').value,
+                notes: document.getElementById('gymNotes').value.trim()
+            };
+
+            // Validate required fields
+            if (!fields.ownerName || !fields.ownerEmail || !fields.ownerPhone || !fields.gymName ||
+                !fields.gymAddress || !fields.gymCity || !fields.gymState || !fields.verifyMethod) {
+                showToast('Please fill in all required fields');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(fields.ownerEmail)) {
+                showToast('Please enter a valid email');
+                return;
+            }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                // Save application to Firestore
+                await addDoc(collection(db, 'gymPartnerApplications'), {
+                    ...fields,
+                    status: 'pending',
+                    createdAt: serverTimestamp()
+                });
+
+                // Send notification email to gymroamapp@gmail.com via Firebase Trigger Email extension
+                // This uses the same mail collection as the welcome emails
+                await addDoc(collection(db, 'mail'), {
+                    to: ['gymroamapp@gmail.com'],
+                    message: {
+                        subject: `🏋️ New Gym Partner Application: ${fields.gymName}`,
+                        html: `
+                            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:600px;margin:0 auto;background:#111114;color:#E8E8EE;padding:32px;border-radius:16px;border:1px solid #E8FF3C;">
+                                <h2 style="color:#E8FF3C;margin:0 0 24px;">New Partner Application</h2>
+
+                                <h3 style="color:#8A8A99;font-size:12px;text-transform:uppercase;margin:0 0 8px;">Owner Info</h3>
+                                <p style="margin:0 0 4px;"><strong>${fields.ownerName}</strong> — ${fields.ownerRole}</p>
+                                <p style="margin:0 0 4px;">📧 ${fields.ownerEmail}</p>
+                                <p style="margin:0 0 16px;">📱 ${fields.ownerPhone}</p>
+
+                                <h3 style="color:#8A8A99;font-size:12px;text-transform:uppercase;margin:0 0 8px;">Gym Info</h3>
+                                <p style="margin:0 0 4px;"><strong>${fields.gymName}</strong> (${fields.gymType})</p>
+                                <p style="margin:0 0 4px;">📍 ${fields.gymAddress}, ${fields.gymCity}, ${fields.gymState}</p>
+                                ${fields.gymPhone ? `<p style="margin:0 0 4px;">☎️ ${fields.gymPhone}</p>` : ''}
+                                ${fields.gymWebsite ? `<p style="margin:0 0 4px;">🌐 ${fields.gymWebsite}</p>` : ''}
+                                ${fields.gymInstagram ? `<p style="margin:0 0 16px;">📸 ${fields.gymInstagram}</p>` : '<p style="margin:0 0 16px;"></p>'}
+
+                                <h3 style="color:#8A8A99;font-size:12px;text-transform:uppercase;margin:0 0 8px;">Verification</h3>
+                                <p style="margin:0 0 16px;"><strong>How to verify:</strong> ${fields.verifyMethod}</p>
+
+                                <h3 style="color:#8A8A99;font-size:12px;text-transform:uppercase;margin:0 0 8px;">Additional</h3>
+                                <p style="margin:0 0 4px;"><strong>Day passes:</strong> ${fields.dayPass}</p>
+                                ${fields.notes ? `<p style="margin:0 0 4px;"><strong>Notes:</strong> ${fields.notes}</p>` : ''}
+
+                                <hr style="border:none;border-top:1px solid #1F1F26;margin:24px 0;">
+                                <p style="color:#55555F;font-size:12px;margin:0;">Review in <a href="https://console.firebase.google.com" style="color:#E8FF3C;">Firebase Console</a> → gymPartnerApplications</p>
+                            </div>
+                        `
+                    }
+                });
+
+                // Send confirmation email to the applicant
+                await addDoc(collection(db, 'mail'), {
+                    to: [fields.ownerEmail],
+                    message: {
+                        subject: 'GymRoam — We received your application',
+                        html: `
+                            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:520px;margin:0 auto;background:#111114;color:#E8E8EE;padding:32px;border-radius:16px;border:1px solid #1F1F26;">
+                                <div style="text-align:center;margin-bottom:24px;">
+                                    <div style="display:inline-block;width:40px;height:40px;background:#E8FF3C;border-radius:10px;line-height:40px;font-weight:900;font-size:20px;color:#0A0A0B;">G</div>
+                                </div>
+                                <h2 style="text-align:center;margin:0 0 8px;font-size:22px;">Application Received</h2>
+                                <p style="text-align:center;color:#8A8A99;margin:0 0 24px;font-size:14px;">Thanks for applying to partner with GymRoam, ${fields.ownerName}.</p>
+                                <div style="background:#18181D;border-radius:12px;padding:20px;margin-bottom:24px;">
+                                    <p style="margin:0 0 4px;font-weight:700;">${fields.gymName}</p>
+                                    <p style="margin:0;color:#8A8A99;font-size:13px;">${fields.gymCity}, ${fields.gymState}</p>
+                                </div>
+                                <p style="color:#8A8A99;font-size:14px;text-align:center;margin:0 0 8px;">We'll review your documents and get back to you within <strong style="color:#E8E8EE;">24-48 hours</strong>.</p>
+                                <p style="color:#8A8A99;font-size:14px;text-align:center;margin:0;">Once approved, you'll receive a temporary passcode to sign into the GymRoam app and access your Partner Dashboard.</p>
+                                <hr style="border:none;border-top:1px solid #1F1F26;margin:24px 0;">
+                                <p style="color:#55555F;font-size:11px;text-align:center;margin:0;">Questions? Reply to this email or reach us at gymroamapp@gmail.com</p>
+                            </div>
+                        `
+                    }
+                });
+
+                document.getElementById('formCard').style.display = 'none';
+                document.getElementById('successState').style.display = 'block';
+                showToast('Application submitted');
+            } catch (e) {
+                console.error('Submit error:', e);
+                showToast('Something went wrong. Try again.');
+                btn.disabled = false;
+                btn.textContent = 'Submit Application';
+            }
+        };
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+    </script>
+
+</body>
+</html>

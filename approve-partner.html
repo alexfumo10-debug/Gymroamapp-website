@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymRoam — Approve Partner</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --bg:#0A0A0B;--surface:#111114;--surface2:#18181D;--border:#1F1F26;
+            --text:#E8E8EE;--muted:#8A8A99;--dim:#55555F;--accent:#E8FF3C;
+        }
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+
+        nav{padding:18px 24px;background:rgba(10,10,11,0.8);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+        .nav-inner{max-width:600px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+        .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#0A0A0B;position:relative;}
+        .logo-icon::after{content:'';position:absolute;top:5px;right:6px;width:4px;height:4px;background:#0A0A0B;border-radius:50%;}
+        .logo-text{font-size:15px;font-weight:800;color:var(--text);letter-spacing:3px;}
+
+        .container{max-width:600px;margin:0 auto;padding:48px 24px;}
+        h1{font-size:28px;font-weight:900;margin-bottom:8px;}
+        h1 span{color:var(--accent);}
+        .subtitle{color:var(--muted);font-size:14px;margin-bottom:32px;}
+
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;}
+        label{display:block;font-size:12px;font-weight:600;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+        input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:16px;outline:none;transition:border-color 0.2s;}
+        input:focus{border-color:var(--accent);}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+
+        .generated{background:var(--surface2);border:1px solid var(--accent);border-radius:10px;padding:16px;margin-bottom:16px;display:none;}
+        .generated .passcode{font-size:28px;font-weight:900;letter-spacing:4px;color:var(--accent);text-align:center;font-family:monospace;}
+
+        .btn{width:100%;background:var(--accent);color:#0A0A0B;border:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform 0.2s;margin-bottom:12px;}
+        .btn:hover{transform:translateY(-1px);}
+        .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+        .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+        .btn-secondary:hover{border-color:var(--accent);}
+
+        .status{text-align:center;padding:20px;display:none;}
+        .status.success{color:var(--accent);}
+        .status.error{color:#FF4D6D;}
+
+        .steps{margin-top:24px;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;}
+        .steps h3{font-size:14px;font-weight:700;margin-bottom:12px;}
+        .steps ol{padding-left:20px;font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:8px;}
+        .steps code{background:var(--surface2);padding:2px 6px;border-radius:4px;font-size:12px;color:var(--accent);}
+
+        .warning{background:rgba(255,77,109,0.08);border:1px solid rgba(255,77,109,0.2);border-radius:10px;padding:14px;font-size:13px;color:#FF4D6D;margin-bottom:20px;text-align:center;}
+
+        .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#0A0A0B;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:transform 0.3s ease;z-index:200;pointer-events:none;}
+        .toast.show{transform:translateX(-50%) translateY(0);}
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">G</div>
+                <span class="logo-text">GYMROAM</span>
+            </a>
+            <span style="font-size:12px;color:var(--dim);font-weight:600;">ADMIN</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>Approve <span>Partner</span></h1>
+        <p class="subtitle">Create their Firebase account, generate a temp passcode, and send the approval email — all from here.</p>
+
+        <div class="warning">⚠️ This page writes directly to Firebase. Only use after you've verified the gym owner's documents.</div>
+
+        <div class="card">
+            <label>Partner's Email (from their application) <span style="color:#FF4D6D;">*</span></label>
+            <input type="email" id="partnerEmail" placeholder="owner@theirgym.com">
+
+            <label>Partner's Full Name <span style="color:#FF4D6D;">*</span></label>
+            <input type="text" id="partnerName" placeholder="John Smith">
+
+            <label>Gym Name <span style="color:#FF4D6D;">*</span></label>
+            <input type="text" id="partnerGymName" placeholder="Ironworks Fitness">
+
+            <div class="form-row">
+                <div>
+                    <label>Gym City</label>
+                    <input type="text" id="partnerGymCity" placeholder="Miami">
+                </div>
+                <div>
+                    <label>Gym ID (Firestore doc ID)</label>
+                    <input type="text" id="partnerGymId" placeholder="Optional — auto-generated if empty">
+                </div>
+            </div>
+
+            <!-- Generated passcode display -->
+            <div class="generated" id="passcodeDisplay">
+                <label style="text-align:center;">Temporary Passcode</label>
+                <div class="passcode" id="passcodeText"></div>
+            </div>
+
+            <button class="btn" id="approveBtn" onclick="approvePartner()">
+                Generate Passcode & Create Account
+            </button>
+
+            <button class="btn btn-secondary" id="sendEmailBtn" onclick="sendApprovalEmail()" style="display:none;">
+                Send Approval Email to Partner
+            </button>
+
+            <div class="status" id="statusMsg"></div>
+        </div>
+
+        <div class="steps">
+            <h3>What this does</h3>
+            <ol>
+                <li>Generates a random 8-character temporary passcode</li>
+                <li>Creates a Firebase Auth account with their email + temp passcode</li>
+                <li>Creates their Firestore user profile with <code>role: "gymPartner"</code> and <code>mustChangePassword: true</code></li>
+                <li>Creates a <code>gymPartners</code> doc for their gym dashboard data</li>
+                <li>Sends them an approval email with the temp passcode and instructions</li>
+                <li>Updates their application status to <code>approved</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+        import { getFirestore, collection, doc, addDoc, setDoc, getDocs, query, where, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+        import { getAuth, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyB9BRB-kO_LKsBj1-h7142ejbWyskwsMAQ",
+            authDomain: "gymroam-ad7dc.firebaseapp.com",
+            projectId: "gymroam-ad7dc",
+            storageBucket: "gymroam-ad7dc.firebasestorage.app",
+            messagingSenderId: "882063435578",
+            appId: "1:882063435578:web:partner"
+        });
+
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        let generatedPasscode = '';
+        let createdUserId = '';
+
+        function generatePasscode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no O/0/I/1 to avoid confusion
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        window.approvePartner = async function() {
+            const email = document.getElementById('partnerEmail').value.trim();
+            const name = document.getElementById('partnerName').value.trim();
+            const gymName = document.getElementById('partnerGymName').value.trim();
+            const gymCity = document.getElementById('partnerGymCity').value.trim();
+            let gymId = document.getElementById('partnerGymId').value.trim();
+
+            if (!email || !name || !gymName) {
+                showStatus('Please fill in email, name, and gym name.', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('approveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            try {
+                // 1. Generate passcode
+                generatedPasscode = generatePasscode();
+
+                // 2. Create Firebase Auth account
+                const userCred = await createUserWithEmailAndPassword(auth, email, generatedPasscode);
+                createdUserId = userCred.user.uid;
+
+                // 3. Generate gym ID if not provided
+                if (!gymId) {
+                    gymId = gymName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+                }
+
+                // 4. Create user profile in Firestore
+                await setDoc(doc(db, 'users', createdUserId), {
+                    displayName: name,
+                    username: '@' + gymName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+                    usernameLower: gymName.toLowerCase().replace(/[^a-z0-9]/g, ''),
+                    role: 'gymPartner',
+                    partnerGymName: gymName,
+                    partnerGymId: gymId,
+                    mustChangePassword: true,
+                    hasCompletedOnboarding: true,
+                    gymsVisited: 0,
+                    citiesVisited: 0,
+                    reviewCount: 0,
+                    friendCount: 0,
+                    selectedActivities: [],
+                    travelerType: '',
+                    goal: '',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                });
+
+                // 5. Create gymPartners doc for the dashboard
+                await setDoc(doc(db, 'gymPartners', gymId), {
+                    ownerId: createdUserId,
+                    ownerEmail: email,
+                    ownerName: name,
+                    gymName: gymName,
+                    gymCity: gymCity,
+                    isVerified: true,
+                    views: 0,
+                    saves: 0,
+                    directions: 0,
+                    checkIns: 0,
+                    description: '',
+                    hours: '',
+                    dayPassPrice: '',
+                    amenities: '',
+                    createdAt: serverTimestamp()
+                });
+
+                // 6. Update the application status to approved
+                try {
+                    const appsQuery = query(
+                        collection(db, 'gymPartnerApplications'),
+                        where('ownerEmail', '==', email),
+                        where('status', '==', 'pending')
+                    );
+                    const appsSnap = await getDocs(appsQuery);
+                    for (const appDoc of appsSnap.docs) {
+                        await updateDoc(appDoc.ref, {
+                            status: 'approved',
+                            approvedAt: serverTimestamp(),
+                            approvedUserId: createdUserId,
+                            gymPartnerId: gymId
+                        });
+                    }
+                } catch (e) {
+                    console.log('Could not update application status:', e);
+                }
+
+                // Show passcode
+                document.getElementById('passcodeText').textContent = generatedPasscode;
+                document.getElementById('passcodeDisplay').style.display = 'block';
+                document.getElementById('sendEmailBtn').style.display = 'block';
+                btn.textContent = '✓ Account Created';
+                showStatus('Account created. Now send the approval email.', 'success');
+
+            } catch (e) {
+                console.error('Approval error:', e);
+                if (e.code === 'auth/email-already-in-use') {
+                    showStatus('This email already has an account. Update their role in Firebase Console instead.', 'error');
+                } else {
+                    showStatus('Error: ' + e.message, 'error');
+                }
+                btn.disabled = false;
+                btn.textContent = 'Generate Passcode & Create Account';
+            }
+        };
+
+        window.sendApprovalEmail = async function() {
+            const email = document.getElementById('partnerEmail').value.trim();
+            const name = document.getElementById('partnerName').value.trim();
+            const gymName = document.getElementById('partnerGymName').value.trim();
+
+            const sendBtn = document.getElementById('sendEmailBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = 'Sending...';
+
+            try {
+                await addDoc(collection(db, 'mail'), {
+                    to: [email],
+                    message: {
+                        subject: "You're approved — Welcome to GymRoam Partner",
+                        html: `
+                            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:520px;margin:0 auto;background:#111114;color:#E8E8EE;padding:32px;border-radius:16px;border:1px solid #E8FF3C;">
+                                <div style="text-align:center;margin-bottom:24px;">
+                                    <div style="display:inline-block;width:44px;height:44px;background:#E8FF3C;border-radius:11px;line-height:44px;font-weight:900;font-size:22px;color:#0A0A0B;">G</div>
+                                </div>
+
+                                <h2 style="text-align:center;margin:0 0 6px;font-size:24px;font-weight:900;">You're In, ${name} 🎉</h2>
+                                <p style="text-align:center;color:#8A8A99;margin:0 0 28px;font-size:14px;"><strong>${gymName}</strong> is now a verified GymRoam Partner.</p>
+
+                                <div style="background:#18181D;border-radius:12px;padding:24px;margin-bottom:24px;text-align:center;">
+                                    <p style="color:#8A8A99;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 10px;">Your Temporary Passcode</p>
+                                    <p style="font-size:32px;font-weight:900;letter-spacing:5px;color:#E8FF3C;font-family:monospace;margin:0;">${generatedPasscode}</p>
+                                </div>
+
+                                <div style="background:#18181D;border-radius:12px;padding:20px;margin-bottom:24px;">
+                                    <p style="font-weight:700;margin:0 0 12px;font-size:14px;">How to get started:</p>
+                                    <ol style="padding-left:20px;color:#8A8A99;font-size:13px;margin:0;line-height:2;">
+                                        <li>Download <strong style="color:#E8E8EE;">GymRoam</strong> from the App Store</li>
+                                        <li>Tap <strong style="color:#E8E8EE;">Sign In</strong> (not Sign Up)</li>
+                                        <li>Enter your email: <strong style="color:#E8E8EE;">${email}</strong></li>
+                                        <li>Enter the temporary passcode above</li>
+                                        <li>You'll be asked to set your own password</li>
+                                        <li>Access your <strong style="color:#E8E8EE;">Partner Dashboard</strong> 🚀</li>
+                                    </ol>
+                                </div>
+
+                                <p style="color:#8A8A99;font-size:13px;text-align:center;margin:0 0 8px;">Your gym now shows a <span style="color:#E8FF3C;">✓ Verified Partner</span> badge to all GymRoam users.</p>
+
+                                <hr style="border:none;border-top:1px solid #1F1F26;margin:24px 0;">
+                                <p style="color:#55555F;font-size:11px;text-align:center;margin:0;">Questions? Reply to this email or contact gymroamapp@gmail.com</p>
+                            </div>
+                        `
+                    }
+                });
+
+                sendBtn.textContent = '✓ Email Sent';
+                showStatus('Approval email sent to ' + email, 'success');
+                showToast('Approval email sent!');
+            } catch (e) {
+                console.error('Email error:', e);
+                showStatus('Failed to send email: ' + e.message, 'error');
+                sendBtn.disabled = false;
+                sendBtn.textContent = 'Send Approval Email to Partner';
+            }
+        };
+
+        function showStatus(msg, type) {
+            const el = document.getElementById('statusMsg');
+            el.textContent = msg;
+            el.className = 'status ' + type;
+            el.style.display = 'block';
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+    </script>
+
+</body>
+</html>
