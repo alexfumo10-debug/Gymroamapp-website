@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymRoam — Feedback Board</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --bg:#0A0A0B;--surface:#111114;--surface2:#18181D;--border:#1F1F26;
+            --text:#E8E8EE;--muted:#8A8A99;--dim:#55555F;--accent:#E8FF3C;
+        }
+        html{scroll-behavior:smooth;}
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+
+        /* NAV */
+        nav{padding:18px 24px;background:rgba(10,10,11,0.8);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);}
+        .nav-inner{max-width:720px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;}
+        .logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+        .logo-icon{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#0A0A0B;position:relative;}
+        .logo-icon::after{content:'';position:absolute;top:5px;right:6px;width:4px;height:4px;background:#0A0A0B;border-radius:50%;}
+        .logo-text{font-size:15px;font-weight:800;color:var(--text);letter-spacing:3px;}
+        .back-link{font-size:13px;color:var(--dim);transition:color 0.2s;}
+        .back-link:hover{color:var(--text);}
+
+        /* HEADER */
+        .header{max-width:720px;margin:0 auto;padding:48px 24px 0;}
+        .header h1{font-size:28px;font-weight:900;letter-spacing:-1px;margin-bottom:8px;}
+        .header p{font-size:15px;color:var(--muted);margin-bottom:32px;}
+
+        /* FILTERS */
+        .filters{max-width:720px;margin:0 auto;padding:0 24px 24px;display:flex;gap:8px;flex-wrap:wrap;}
+        .filter-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+        .filter-btn:hover{border-color:var(--dim);color:var(--text);}
+        .filter-btn.active{background:var(--accent);color:#0A0A0B;border-color:var(--accent);}
+
+        /* SUBMIT FORM */
+        .submit-area{max-width:720px;margin:0 auto;padding:0 24px 32px;}
+        .submit-toggle{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:14px 20px;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;text-align:left;font-family:inherit;transition:border-color 0.2s;}
+        .submit-toggle:hover{border-color:var(--dim);}
+        .submit-form{display:none;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:8px;}
+        .submit-form.open{display:block;}
+        .submit-form input,.submit-form textarea,.submit-form select{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:12px;outline:none;transition:border-color 0.2s;}
+        .submit-form input:focus,.submit-form textarea:focus{border-color:var(--accent);}
+        .submit-form textarea{resize:vertical;min-height:80px;}
+        .submit-form select{cursor:pointer;-webkit-appearance:none;appearance:none;}
+        .submit-form label{display:block;font-size:12px;font-weight:600;color:var(--dim);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+        .submit-btn{background:var(--accent);color:#0A0A0B;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform 0.2s;}
+        .submit-btn:hover{transform:translateY(-1px);}
+        .submit-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+        .form-row{display:flex;gap:12px;}
+        .form-row>div{flex:1;}
+
+        /* FEATURE LIST */
+        .features-list{max-width:720px;margin:0 auto;padding:0 24px 64px;display:flex;flex-direction:column;gap:8px;}
+        .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;display:flex;gap:16px;align-items:flex-start;transition:border-color 0.2s;}
+        .feature-card:hover{border-color:var(--dim);}
+
+        /* VOTE BUTTON */
+        .vote-btn{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:44px;padding:8px 0;background:var(--surface2);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all 0.2s;font-family:inherit;}
+        .vote-btn:hover{border-color:var(--accent);background:rgba(232,255,60,0.05);}
+        .vote-btn.voted{border-color:var(--accent);background:rgba(232,255,60,0.1);}
+        .vote-arrow{font-size:12px;color:var(--dim);transition:color 0.2s;}
+        .vote-btn:hover .vote-arrow,.vote-btn.voted .vote-arrow{color:var(--accent);}
+        .vote-count{font-size:15px;font-weight:800;color:var(--text);}
+        .vote-btn.voted .vote-count{color:var(--accent);}
+
+        /* FEATURE CONTENT */
+        .feature-content{flex:1;min-width:0;}
+        .feature-title{font-size:15px;font-weight:700;margin-bottom:4px;}
+        .feature-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+        .feature-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+        /* STATUS BADGES */
+        .status{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;}
+        .status-dot{width:6px;height:6px;border-radius:50%;}
+        .status-review{background:rgba(138,138,153,0.12);color:#8A8A99;}
+        .status-review .status-dot{background:#8A8A99;}
+        .status-planned{background:rgba(74,158,255,0.12);color:#4A9EFF;}
+        .status-planned .status-dot{background:#4A9EFF;}
+        .status-progress{background:rgba(232,255,60,0.12);color:#E8FF3C;}
+        .status-progress .status-dot{background:#E8FF3C;}
+        .status-shipped{background:rgba(78,205,196,0.12);color:#4ECDC4;}
+        .status-shipped .status-dot{background:#4ECDC4;}
+        .category-tag{font-size:11px;color:var(--dim);font-weight:500;}
+
+        /* EMPTY STATE */
+        .empty-state{text-align:center;padding:64px 24px;color:var(--dim);font-size:14px;}
+
+        /* COUNT */
+        .count{max-width:720px;margin:0 auto;padding:0 24px 16px;font-size:12px;color:var(--dim);font-weight:500;}
+
+        /* SORT */
+        .sort-bar{max-width:720px;margin:0 auto;padding:0 24px 16px;display:flex;justify-content:space-between;align-items:center;}
+        .sort-btns{display:flex;gap:4px;}
+        .sort-btn{background:none;border:none;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer;padding:4px 10px;border-radius:6px;font-family:inherit;transition:all 0.2s;}
+        .sort-btn:hover{color:var(--muted);}
+        .sort-btn.active{background:var(--surface);color:var(--text);}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#0A0A0B;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:transform 0.3s ease;z-index:200;pointer-events:none;}
+        .toast.show{transform:translateX(-50%) translateY(0);}
+
+        @media(max-width:640px){
+            .form-row{flex-direction:column;gap:0;}
+            .feature-card{padding:14px 16px;gap:12px;}
+            .header h1{font-size:24px;}
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">G</div>
+                <span class="logo-text">GYMROAM</span>
+            </a>
+            <a href="index.html" class="back-link">&larr; Back to site</a>
+        </div>
+    </nav>
+
+    <div class="header">
+        <h1>Feedback Board</h1>
+        <p>Vote on features you want, or suggest something new. We build what matters to you.</p>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters" id="filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="under review">Under Review</button>
+        <button class="filter-btn" data-filter="planned">Planned</button>
+        <button class="filter-btn" data-filter="in progress">In Progress</button>
+        <button class="filter-btn" data-filter="shipped">Shipped</button>
+    </div>
+
+    <!-- SUBMIT -->
+    <div class="submit-area">
+        <button class="submit-toggle" onclick="document.getElementById('submitForm').classList.toggle('open');this.style.display='none';">
+            + Suggest a feature...
+        </button>
+        <div class="submit-form" id="submitForm">
+            <label>Feature Title</label>
+            <input type="text" id="featureTitle" placeholder="e.g. Add gym check-ins" maxlength="100">
+            <label>Description</label>
+            <textarea id="featureDesc" placeholder="Describe the feature and why it would be useful..." maxlength="500"></textarea>
+            <div class="form-row">
+                <div>
+                    <label>Category</label>
+                    <select id="featureCategory">
+                        <option value="Feature">Feature</option>
+                        <option value="Improvement">Improvement</option>
+                        <option value="Bug Fix">Bug Fix</option>
+                        <option value="Design">Design</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Your Name (optional)</label>
+                    <input type="text" id="featureName" placeholder="Anonymous" maxlength="50" style="margin-bottom:0;">
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:16px;">
+                <button class="submit-btn" id="submitBtn" onclick="submitFeature()">Submit</button>
+                <button class="submit-toggle" style="flex:none;padding:10px 16px;font-size:14px;" onclick="document.getElementById('submitForm').classList.remove('open');document.querySelector('.submit-toggle').style.display='block';">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SORT -->
+    <div class="sort-bar">
+        <span class="count" id="count"></span>
+        <div class="sort-btns">
+            <button class="sort-btn active" data-sort="votes">Top</button>
+            <button class="sort-btn" data-sort="newest">New</button>
+        </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="features-list" id="featuresList"></div>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+        import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, increment, serverTimestamp, query, orderBy } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyB9BRB-kO_LKsBj1-h7142ejbWyskwsMAQ",
+            authDomain: "gymroam-ad7dc.firebaseapp.com",
+            projectId: "gymroam-ad7dc",
+            storageBucket: "gymroam-ad7dc.firebasestorage.app",
+            messagingSenderId: "882063435578",
+            appId: "1:882063435578:web:feedback"
+        });
+
+        const db = getFirestore(app);
+        const feedbackRef = collection(db, 'feedback');
+
+        let allFeatures = [];
+        let currentFilter = 'all';
+        let currentSort = 'votes';
+        let votedIds = JSON.parse(localStorage.getItem('gymroam_votes') || '[]');
+
+        // Load features
+        async function loadFeatures() {
+            try {
+                const snap = await getDocs(query(feedbackRef, orderBy('createdAt', 'desc')));
+                allFeatures = [];
+                snap.forEach(d => {
+                    allFeatures.push({ id: d.id, ...d.data() });
+                });
+                renderFeatures();
+            } catch (e) {
+                console.error('Load error:', e);
+                document.getElementById('featuresList').innerHTML = '<div class="empty-state">Unable to load feedback. Please try again later.</div>';
+            }
+        }
+
+        // Render
+        function renderFeatures() {
+            const list = document.getElementById('featuresList');
+            let filtered = currentFilter === 'all' ? allFeatures : allFeatures.filter(f => f.status === currentFilter);
+
+            if (currentSort === 'votes') {
+                filtered.sort((a, b) => (b.votes || 0) - (a.votes || 0));
+            } else {
+                filtered.sort((a, b) => {
+                    const da = a.createdAt?.seconds || 0;
+                    const db2 = b.createdAt?.seconds || 0;
+                    return db2 - da;
+                });
+            }
+
+            document.getElementById('count').textContent = filtered.length + ' feature' + (filtered.length !== 1 ? 's' : '');
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<div class="empty-state">No features here yet. Be the first to suggest one.</div>';
+                return;
+            }
+
+            list.innerHTML = filtered.map(f => {
+                const voted = votedIds.includes(f.id);
+                const statusClass = {
+                    'under review': 'status-review',
+                    'planned': 'status-planned',
+                    'in progress': 'status-progress',
+                    'shipped': 'status-shipped'
+                }[f.status] || 'status-review';
+
+                const statusLabel = {
+                    'under review': 'Under Review',
+                    'planned': 'Planned',
+                    'in progress': 'In Progress',
+                    'shipped': 'Shipped'
+                }[f.status] || 'Under Review';
+
+                const date = f.createdAt ? new Date(f.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+
+                return `
+                    <div class="feature-card">
+                        <button class="vote-btn ${voted ? 'voted' : ''}" onclick="window.vote('${f.id}', ${voted})" ${voted ? 'title="You voted"' : 'title="Upvote"'}>
+                            <span class="vote-arrow">&#9650;</span>
+                            <span class="vote-count">${f.votes || 0}</span>
+                        </button>
+                        <div class="feature-content">
+                            <div class="feature-title">${esc(f.title)}</div>
+                            ${f.description ? `<div class="feature-desc">${esc(f.description)}</div>` : ''}
+                            <div class="feature-meta">
+                                <span class="status ${statusClass}"><span class="status-dot"></span>${statusLabel}</span>
+                                <span class="category-tag">${esc(f.category || 'Feature')}</span>
+                                ${date ? `<span class="category-tag">${date}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s || '';
+            return d.innerHTML;
+        }
+
+        // Vote
+        window.vote = async function(id, alreadyVoted) {
+            if (alreadyVoted) return;
+            try {
+                await updateDoc(doc(db, 'feedback', id), { votes: increment(1) });
+                votedIds.push(id);
+                localStorage.setItem('gymroam_votes', JSON.stringify(votedIds));
+                const f = allFeatures.find(x => x.id === id);
+                if (f) f.votes = (f.votes || 0) + 1;
+                renderFeatures();
+                showToast('Vote counted');
+            } catch (e) {
+                console.error('Vote error:', e);
+                showToast('Could not vote. Try again.');
+            }
+        };
+
+        // Submit
+        window.submitFeature = async function() {
+            const title = document.getElementById('featureTitle').value.trim();
+            const desc = document.getElementById('featureDesc').value.trim();
+            const category = document.getElementById('featureCategory').value;
+            const name = document.getElementById('featureName').value.trim() || 'Anonymous';
+
+            if (!title) { showToast('Add a title'); return; }
+
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                await addDoc(feedbackRef, {
+                    title,
+                    description: desc,
+                    category,
+                    submittedBy: name,
+                    votes: 1,
+                    status: 'under review',
+                    createdAt: serverTimestamp()
+                });
+
+                document.getElementById('featureTitle').value = '';
+                document.getElementById('featureDesc').value = '';
+                document.getElementById('featureName').value = '';
+                document.getElementById('submitForm').classList.remove('open');
+                document.querySelector('.submit-toggle').style.display = 'block';
+
+                showToast('Feature submitted');
+                await loadFeatures();
+            } catch (e) {
+                console.error('Submit error:', e);
+                showToast('Could not submit. Try again.');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Submit';
+        };
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        // Filter buttons
+        document.getElementById('filters').addEventListener('click', e => {
+            if (!e.target.classList.contains('filter-btn')) return;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentFilter = e.target.dataset.filter;
+            renderFeatures();
+        });
+
+        // Sort buttons
+        document.querySelectorAll('.sort-btn').forEach(b => {
+            b.addEventListener('click', () => {
+                document.querySelectorAll('.sort-btn').forEach(x => x.classList.remove('active'));
+                b.classList.add('active');
+                currentSort = b.dataset.sort;
+                renderFeatures();
+            });
+        });
+
+        // Init
+        loadFeatures();
+    </script>
+
+</body>
+</html>
