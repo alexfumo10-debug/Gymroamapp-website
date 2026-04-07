@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymRoam — Admin</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --bg:#0A0A0B;--surface:#111114;--surface2:#18181D;--border:#1F1F26;
+            --text:#E8E8EE;--muted:#8A8A99;--dim:#55555F;--accent:#E8FF3C;
+            --green:#4ECDC4;--red:#FF4D6D;--blue:#4A9EFF;
+        }
+        body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;}
+
+        /* LOGIN */
+        .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+        .login-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;max-width:380px;width:100%;}
+        .login-card h2{font-size:22px;font-weight:900;margin-bottom:4px;}
+        .login-card p{font-size:13px;color:var(--dim);margin-bottom:24px;}
+        .login-card input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:12px;outline:none;}
+        .login-card input:focus{border-color:var(--accent);}
+        .login-card button{width:100%;background:var(--accent);color:#0A0A0B;border:none;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;}
+        .login-card button:disabled{opacity:0.4;cursor:not-allowed;}
+        .login-error{color:var(--red);font-size:13px;margin-bottom:12px;}
+        .login-logo{text-align:center;margin-bottom:24px;}
+        .login-logo span{font-size:15px;font-weight:800;letter-spacing:3px;}
+
+        /* ADMIN PANEL */
+        .admin{display:none;max-width:800px;margin:0 auto;padding:24px;}
+        .admin.show{display:block;}
+        .admin-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+        .admin-header h1{font-size:22px;font-weight:900;}
+        .sign-out-btn{background:none;border:1px solid var(--border);color:var(--dim);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+        .sign-out-btn:hover{border-color:var(--dim);color:var(--text);}
+
+        /* TABS */
+        .tabs{display:flex;gap:4px;margin-bottom:24px;}
+        .tab{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;}
+        .tab:hover{color:var(--text);}
+        .tab.active{background:var(--accent);color:#0A0A0B;border-color:var(--accent);}
+        .tab .badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;background:var(--red);color:white;border-radius:9px;font-size:10px;font-weight:800;margin-left:6px;padding:0 5px;}
+        .tab.active .badge{background:#0A0A0B;color:var(--accent);}
+
+        /* APPLICATION CARDS */
+        .app-list{display:flex;flex-direction:column;gap:12px;}
+        .app-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color 0.2s;}
+        .app-card:hover{border-color:var(--dim);}
+        .app-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+        .app-gym{font-size:17px;font-weight:800;}
+        .app-status{padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;}
+        .status-pending{background:rgba(255,140,66,0.12);color:#FF8C42;}
+        .status-approved{background:rgba(78,205,196,0.12);color:var(--green);}
+        .status-rejected{background:rgba(255,77,109,0.12);color:var(--red);}
+        .app-details{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+        .app-field{font-size:13px;}
+        .app-field .label{color:var(--dim);font-size:11px;font-weight:600;text-transform:uppercase;margin-bottom:2px;}
+        .app-verify{background:var(--surface2);border-radius:8px;padding:12px;margin-bottom:16px;}
+        .app-verify .label{color:var(--dim);font-size:11px;font-weight:600;text-transform:uppercase;margin-bottom:4px;}
+        .app-verify p{font-size:13px;color:var(--muted);}
+        .app-date{font-size:11px;color:var(--dim);margin-bottom:12px;}
+
+        /* ACTION BUTTONS */
+        .app-actions{display:flex;gap:8px;}
+        .action-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:transform 0.2s;}
+        .action-btn:hover{transform:translateY(-1px);}
+        .btn-approve{background:var(--green);color:#0A0A0B;}
+        .btn-reject{background:var(--surface2);border:1px solid var(--border);color:var(--red);}
+        .btn-creating{background:var(--blue);color:white;}
+
+        /* APPROVE MODAL */
+        .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:100;align-items:center;justify-content:center;padding:24px;}
+        .modal-overlay.show{display:flex;}
+        .modal{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:420px;width:100%;}
+        .modal h3{font-size:18px;font-weight:800;margin-bottom:4px;}
+        .modal .subtitle{font-size:13px;color:var(--muted);margin-bottom:20px;}
+        .modal label{display:block;font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;margin-bottom:6px;}
+        .modal input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:14px;outline:none;}
+        .modal input:focus{border-color:var(--accent);}
+        .modal-actions{display:flex;gap:8px;margin-top:8px;}
+        .modal-actions button{flex:1;padding:10px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border:none;}
+        .modal .btn-cancel{background:var(--surface2);color:var(--muted);}
+        .modal .btn-confirm{background:var(--accent);color:#0A0A0B;}
+        .modal .btn-confirm:disabled{opacity:0.4;cursor:not-allowed;}
+        .passcode-display{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center;font-size:20px;font-weight:900;letter-spacing:2px;color:var(--accent);margin-bottom:14px;}
+        .copy-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:8px;}
+
+        /* EMPTY */
+        .empty{text-align:center;padding:48px;color:var(--dim);font-size:14px;}
+
+        /* TOAST */
+        .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#0A0A0B;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;transition:transform 0.3s ease;z-index:200;pointer-events:none;}
+        .toast.show{transform:translateX(-50%) translateY(0);}
+
+        @media(max-width:640px){
+            .app-details{grid-template-columns:1fr;}
+            .admin{padding:16px;}
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div class="login-wrap" id="loginScreen">
+        <div class="login-card">
+            <div class="login-logo">
+                <span>GYMROAM ADMIN</span>
+            </div>
+            <h2>Sign in</h2>
+            <p>Admin access only.</p>
+            <div class="login-error" id="loginError" style="display:none;"></div>
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button id="loginBtn" onclick="doLogin()">Sign In</button>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL -->
+    <div class="admin" id="adminPanel">
+        <div class="admin-header">
+            <h1>Partner Applications</h1>
+            <button class="sign-out-btn" onclick="doSignOut()">Sign Out</button>
+        </div>
+
+        <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="pending">Pending <span class="badge" id="pendingCount">0</span></button>
+            <button class="tab" data-tab="approved">Approved</button>
+            <button class="tab" data-tab="rejected">Rejected</button>
+        </div>
+
+        <div class="app-list" id="appList"></div>
+    </div>
+
+    <!-- APPROVE MODAL -->
+    <div class="modal-overlay" id="approveModal">
+        <div class="modal">
+            <h3>Approve Partner</h3>
+            <p class="subtitle" id="modalGymName"></p>
+
+            <label>Partner's Email</label>
+            <input type="email" id="modalEmail" readonly style="color:var(--muted);">
+
+            <label>Temporary Passcode</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <div class="passcode-display" id="passcodeDisplay" style="flex:1;"></div>
+                <button class="copy-btn" onclick="copyPasscode()">Copy</button>
+            </div>
+            <p style="font-size:11px;color:var(--dim);margin-bottom:16px;">This passcode will be sent to the partner. They'll change it on first login.</p>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button class="btn-confirm" id="confirmApproveBtn" onclick="confirmApprove()">Create Account & Approve</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+        import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, query, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyB9BRB-kO_LKsBj1-h7142ejbWyskwsMAQ",
+            authDomain: "gymroam-ad7dc.firebaseapp.com",
+            projectId: "gymroam-ad7dc",
+            storageBucket: "gymroam-ad7dc.firebasestorage.app",
+            messagingSenderId: "882063435578",
+            appId: "1:882063435578:web:admin"
+        });
+
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Only YOUR email can access this page
+        const ADMIN_EMAIL = 'gymroamapp@gmail.com';
+
+        let allApps = [];
+        let currentTab = 'pending';
+        let currentAppId = null;
+        let currentAppData = null;
+        let generatedPasscode = '';
+
+        // LOGIN
+        window.doLogin = async function() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errEl = document.getElementById('loginError');
+            errEl.style.display = 'none';
+
+            if (email !== ADMIN_EMAIL) {
+                errEl.textContent = 'Access denied. Admin only.';
+                errEl.style.display = 'block';
+                return;
+            }
+
+            document.getElementById('loginBtn').disabled = true;
+            document.getElementById('loginBtn').textContent = 'Signing in...';
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').classList.add('show');
+                await loadApplications();
+            } catch (e) {
+                errEl.textContent = e.message.includes('invalid') ? 'Wrong email or password' : e.message;
+                errEl.style.display = 'block';
+            }
+
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('loginBtn').textContent = 'Sign In';
+        };
+
+        // SIGN OUT
+        window.doSignOut = async function() {
+            await signOut(auth);
+            document.getElementById('adminPanel').classList.remove('show');
+            document.getElementById('loginScreen').style.display = 'flex';
+        };
+
+        // LOAD APPLICATIONS
+        async function loadApplications() {
+            try {
+                const snap = await getDocs(query(collection(db, 'gymPartnerApplications'), orderBy('createdAt', 'desc')));
+                allApps = [];
+                snap.forEach(d => allApps.push({ id: d.id, ...d.data() }));
+                updateCounts();
+                renderApps();
+            } catch (e) {
+                console.error('Load error:', e);
+                document.getElementById('appList').innerHTML = '<div class="empty">Failed to load applications.</div>';
+            }
+        }
+
+        function updateCounts() {
+            const pending = allApps.filter(a => a.status === 'pending').length;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('pendingCount').style.display = pending > 0 ? 'inline-flex' : 'none';
+        }
+
+        function renderApps() {
+            const list = document.getElementById('appList');
+            const filtered = allApps.filter(a => a.status === currentTab);
+
+            if (filtered.length === 0) {
+                list.innerHTML = `<div class="empty">No ${currentTab} applications.</div>`;
+                return;
+            }
+
+            list.innerHTML = filtered.map(a => {
+                const date = a.createdAt ? new Date(a.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                const statusClass = { pending: 'status-pending', approved: 'status-approved', rejected: 'status-rejected' }[a.status] || 'status-pending';
+
+                return `
+                    <div class="app-card">
+                        <div class="app-top">
+                            <div>
+                                <div class="app-gym">${esc(a.gymName || '')}</div>
+                                <div class="app-date">${date}</div>
+                            </div>
+                            <span class="app-status ${statusClass}">${a.status}</span>
+                        </div>
+                        <div class="app-details">
+                            <div class="app-field"><div class="label">Owner</div>${esc(a.ownerName || '')} — ${esc(a.ownerRole || '')}</div>
+                            <div class="app-field"><div class="label">Email</div>${esc(a.ownerEmail || '')}</div>
+                            <div class="app-field"><div class="label">Phone</div>${esc(a.ownerPhone || '')}</div>
+                            <div class="app-field"><div class="label">Type</div>${esc(a.gymType || '')}</div>
+                            <div class="app-field"><div class="label">Address</div>${esc(a.gymAddress || '')}, ${esc(a.gymCity || '')}, ${esc(a.gymState || '')}</div>
+                            <div class="app-field"><div class="label">Day Passes</div>${esc(a.dayPass || 'Not specified')}</div>
+                            ${a.gymWebsite ? `<div class="app-field"><div class="label">Website</div><a href="${esc(a.gymWebsite)}" target="_blank" style="color:var(--blue);">${esc(a.gymWebsite)}</a></div>` : ''}
+                            ${a.gymInstagram ? `<div class="app-field"><div class="label">Instagram</div>${esc(a.gymInstagram)}</div>` : ''}
+                        </div>
+                        <div class="app-verify">
+                            <div class="label">How to verify</div>
+                            <p>${esc(a.verifyMethod || 'Not provided')}</p>
+                        </div>
+                        ${a.notes ? `<div class="app-verify"><div class="label">Notes</div><p>${esc(a.notes)}</p></div>` : ''}
+                        ${a.status === 'pending' ? `
+                            <div class="app-actions">
+                                <button class="action-btn btn-approve" onclick="openApproveModal('${a.id}')">Approve</button>
+                                <button class="action-btn btn-reject" onclick="rejectApp('${a.id}')">Reject</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function esc(s) {
+            const d = document.createElement('div');
+            d.textContent = s || '';
+            return d.innerHTML;
+        }
+
+        // TABS
+        document.getElementById('tabs').addEventListener('click', e => {
+            if (!e.target.classList.contains('tab')) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            currentTab = e.target.dataset.tab;
+            renderApps();
+        });
+
+        // APPROVE FLOW
+        function generatePasscode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+            return code;
+        }
+
+        window.openApproveModal = function(appId) {
+            currentAppId = appId;
+            currentAppData = allApps.find(a => a.id === appId);
+            generatedPasscode = generatePasscode();
+
+            document.getElementById('modalGymName').textContent = currentAppData.gymName;
+            document.getElementById('modalEmail').value = currentAppData.ownerEmail;
+            document.getElementById('passcodeDisplay').textContent = generatedPasscode;
+            document.getElementById('approveModal').classList.add('show');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('approveModal').classList.remove('show');
+            currentAppId = null;
+            currentAppData = null;
+        };
+
+        window.copyPasscode = function() {
+            navigator.clipboard.writeText(generatedPasscode);
+            showToast('Passcode copied');
+        };
+
+        window.confirmApprove = async function() {
+            const btn = document.getElementById('confirmApproveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating account...';
+
+            try {
+                // 1. Create Firebase Auth account with temp passcode
+                // NOTE: Creating a user with createUserWithEmailAndPassword will sign in as that user.
+                // We need to save admin credentials and re-sign in after.
+                const adminEmail = auth.currentUser.email;
+
+                // Store current admin session info
+                const currentUser = auth.currentUser;
+
+                // Create the partner's account
+                const result = await createUserWithEmailAndPassword(auth, currentAppData.ownerEmail, generatedPasscode);
+                const partnerId = result.user.uid;
+
+                // 2. Create their Firestore profile
+                await setDoc(doc(db, 'users', partnerId), {
+                    displayName: currentAppData.ownerName,
+                    username: '',
+                    role: 'gymPartner',
+                    mustChangePassword: true,
+                    partnerGymName: currentAppData.gymName,
+                    partnerGymId: currentAppId,
+                    hasCompletedOnboarding: true,
+                    gymsVisited: 0,
+                    citiesVisited: 0,
+                    reviewCount: 0,
+                    friendCount: 0,
+                    selectedActivities: [],
+                    travelerType: '',
+                    goal: '',
+                    phoneNumber: currentAppData.ownerPhone || '',
+                    subscriptionActive: false,
+                    createdAt: serverTimestamp()
+                });
+
+                // 3. Create their gym partner document
+                await setDoc(doc(db, 'gymPartners', currentAppId), {
+                    partnerId: partnerId,
+                    gymName: currentAppData.gymName,
+                    gymAddress: currentAppData.gymAddress || '',
+                    gymCity: currentAppData.gymCity || '',
+                    gymState: currentAppData.gymState || '',
+                    gymType: currentAppData.gymType || '',
+                    gymWebsite: currentAppData.gymWebsite || '',
+                    gymInstagram: currentAppData.gymInstagram || '',
+                    gymPhone: currentAppData.gymPhone || '',
+                    dayPass: currentAppData.dayPass || '',
+                    views: 0,
+                    saves: 0,
+                    directions: 0,
+                    checkIns: 0,
+                    isVerified: true,
+                    approvedAt: serverTimestamp()
+                });
+
+                // 4. Update application status
+                await updateDoc(doc(db, 'gymPartnerApplications', currentAppId), {
+                    status: 'approved',
+                    approvedAt: serverTimestamp(),
+                    partnerUserId: partnerId
+                });
+
+                // 5. Sign back in as admin (creating user signs you out as admin)
+                // The admin will need to sign in again
+                showToast('Partner approved! Copy the passcode and send it to them.');
+
+                // Update local state
+                const app = allApps.find(a => a.id === currentAppId);
+                if (app) app.status = 'approved';
+                updateCounts();
+                renderApps();
+                closeModal();
+
+                // Note: admin is now signed out because createUser switches auth context
+                // They'll need to sign back in
+                document.getElementById('adminPanel').classList.remove('show');
+                document.getElementById('loginScreen').style.display = 'flex';
+                showToast('Partner created! Sign back in to continue. Send them this passcode: ' + generatedPasscode);
+
+            } catch (e) {
+                console.error('Approve error:', e);
+                if (e.code === 'auth/email-already-in-use') {
+                    showToast('This email already has an account');
+                } else {
+                    showToast('Error: ' + e.message);
+                }
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Create Account & Approve';
+        };
+
+        // REJECT
+        window.rejectApp = async function(appId) {
+            if (!confirm('Reject this application?')) return;
+            try {
+                await updateDoc(doc(db, 'gymPartnerApplications', appId), {
+                    status: 'rejected',
+                    rejectedAt: serverTimestamp()
+                });
+                const app = allApps.find(a => a.id === appId);
+                if (app) app.status = 'rejected';
+                updateCounts();
+                renderApps();
+                showToast('Application rejected');
+            } catch (e) {
+                showToast('Error: ' + e.message);
+            }
+        };
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 4000);
+        }
+    </script>
+
+</body>
+</html>
