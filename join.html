@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymRoam — Join the Waitlist</title>
+    <meta name="description" content="Be the first to know when GymRoam launches. Find gyms, fitness studios, and wellness centers anywhere you travel.">
+    <meta property="og:title" content="GymRoam — Join the Waitlist">
+    <meta property="og:description" content="Find Your Sweat. Anywhere. Be the first to know when GymRoam launches.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="og-image.png">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        :root{
+            --bg:#0A0A0B;--surface:#111114;--surface2:#18181D;--border:#1F1F26;
+            --text:#E8E8EE;--muted:#8A8A99;--dim:#55555F;--accent:#E8FF3C;
+        }
+        body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh;display:flex;flex-direction:column;}
+
+        /* GLOW BACKDROP */
+        .glow{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(232,255,60,0.08) 0%,transparent 60%);pointer-events:none;z-index:0;}
+
+        /* MAIN */
+        main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;position:relative;z-index:1;}
+        .logo{display:flex;align-items:center;gap:14px;margin-bottom:48px;}
+        .logo-icon{width:56px;height:56px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;color:#0A0A0B;position:relative;}
+        .logo-icon::after{content:'';position:absolute;top:9px;right:11px;width:6px;height:6px;background:#0A0A0B;border-radius:50%;}
+        .logo-text{font-size:20px;font-weight:900;letter-spacing:4px;}
+
+        .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(232,255,60,0.2);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--accent);margin-bottom:24px;}
+        .badge-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+        @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+        h1{font-size:clamp(40px,7vw,64px);font-weight:900;line-height:1.05;letter-spacing:-2px;text-align:center;margin-bottom:16px;max-width:600px;}
+        .accent{color:var(--accent);}
+        .tagline{font-size:17px;color:var(--muted);text-align:center;max-width:440px;margin-bottom:40px;line-height:1.6;}
+
+        /* FORM */
+        .waitlist{width:100%;max-width:440px;}
+        .waitlist-row{display:flex;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px;transition:border-color 0.2s;}
+        .waitlist-row:focus-within{border-color:var(--accent);}
+        .waitlist-row input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:15px;font-family:inherit;padding:12px 16px;min-width:0;}
+        .waitlist-row input::placeholder{color:var(--dim);}
+        .waitlist-row button{background:var(--accent);color:#0A0A0B;border:none;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:transform 0.2s;}
+        .waitlist-row button:hover{transform:translateY(-1px);}
+        .waitlist-row button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .note{font-size:12px;color:var(--dim);text-align:center;margin-top:12px;}
+
+        .success{display:none;flex-direction:column;align-items:center;gap:16px;padding:32px;background:var(--surface);border:1px solid rgba(232,255,60,0.3);border-radius:16px;max-width:440px;text-align:center;}
+        .success.show{display:flex;}
+        .success-check{width:52px;height:52px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0A0A0B;font-weight:900;font-size:22px;}
+        .success-title{font-size:18px;font-weight:800;}
+        .success-sub{font-size:14px;color:var(--muted);max-width:340px;}
+
+        /* FEATURES */
+        .features{margin-top:48px;display:flex;gap:32px;flex-wrap:wrap;justify-content:center;max-width:520px;}
+        .feature{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+        .feature-dot{width:4px;height:4px;background:var(--accent);border-radius:50%;}
+
+        /* FOOTER */
+        footer{padding:32px 24px;text-align:center;font-size:12px;color:var(--dim);border-top:1px solid var(--border);}
+        footer a{color:var(--dim);text-decoration:none;}
+        footer a:hover{color:var(--muted);}
+        .footer-links{margin-bottom:8px;display:flex;justify-content:center;gap:20px;}
+
+        @media(max-width:640px){
+            .features{gap:16px 24px;margin-top:36px;}
+            main{padding:32px 20px;}
+            .logo{margin-bottom:36px;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow"></div>
+
+    <main>
+        <div class="logo">
+            <div class="logo-icon">G</div>
+            <span class="logo-text">GYMROAM</span>
+        </div>
+
+        <div class="badge">
+            <span class="badge-dot"></span>
+            Launching Soon
+        </div>
+
+        <h1>Find Your Sweat.<br><span class="accent">Anywhere.</span></h1>
+        <p class="tagline">Search any city. See real photos. Get directions. Never miss a workout when you travel.</p>
+
+        <div class="waitlist" id="waitlistWrap">
+            <div class="waitlist-row">
+                <input type="email" id="waitlistEmail" placeholder="Enter your email" autocomplete="email">
+                <button id="waitlistBtn" onclick="joinWaitlist()">Join Waitlist</button>
+            </div>
+            <p class="note">Be the first to know when GymRoam launches. No spam.</p>
+        </div>
+
+        <div class="success" id="waitlistSuccess">
+            <div class="success-check">&#10003;</div>
+            <div class="success-title">You're on the list</div>
+            <div class="success-sub">We'll email you the moment GymRoam launches. Follow <a href="https://instagram.com/gymroamapp" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">@gymroamapp</a> for updates.</div>
+        </div>
+
+        <div class="features">
+            <div class="feature"><span class="feature-dot"></span>Any City, Worldwide</div>
+            <div class="feature"><span class="feature-dot"></span>Real Photos & Reviews</div>
+            <div class="feature"><span class="feature-dot"></span>Gyms, Yoga, Pilates & More</div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="https://instagram.com/gymroamapp" target="_blank" rel="noopener">Instagram</a>
+            <a href="mailto:gymroamapp@gmail.com">Contact</a>
+        </div>
+        <span>&copy; 2026 GymRoam — A <a href="https://levestudios.com" target="_blank" rel="noopener">Leve AI Studios</a> Company</span>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyB9BRB-kO_LKsBj1-h7142ejbWyskwsMAQ",
+            authDomain: "gymroam-ad7dc.firebaseapp.com",
+            projectId: "gymroam-ad7dc",
+            storageBucket: "gymroam-ad7dc.firebasestorage.app",
+            messagingSenderId: "882063435578",
+            appId: "1:882063435578:web:waitlist"
+        });
+
+        const db = getFirestore(app);
+
+        if (localStorage.getItem('gymroam_waitlist_joined') === 'true') {
+            document.getElementById('waitlistWrap').style.display = 'none';
+            document.getElementById('waitlistSuccess').classList.add('show');
+        }
+
+        window.joinWaitlist = async function() {
+            const input = document.getElementById('waitlistEmail');
+            const btn = document.getElementById('waitlistBtn');
+            const email = input.value.trim().toLowerCase();
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                input.style.borderColor = '#FF4D6D';
+                input.placeholder = 'Please enter a valid email';
+                input.value = '';
+                setTimeout(() => { input.style.borderColor = ''; input.placeholder = 'Enter your email'; }, 2500);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Joining...';
+
+            try {
+                await addDoc(collection(db, 'waitlist'), {
+                    email: email,
+                    source: 'instagram',
+                    createdAt: serverTimestamp()
+                });
+                localStorage.setItem('gymroam_waitlist_joined', 'true');
+                document.getElementById('waitlistWrap').style.display = 'none';
+                document.getElementById('waitlistSuccess').classList.add('show');
+            } catch (e) {
+                console.error('Waitlist error:', e);
+                btn.disabled = false;
+                btn.textContent = 'Join Waitlist';
+                input.placeholder = 'Something went wrong. Try again.';
+                input.value = '';
+            }
+        };
+
+        document.getElementById('waitlistEmail')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') window.joinWaitlist();
+        });
+    </script>
+
+</body>
+</html>

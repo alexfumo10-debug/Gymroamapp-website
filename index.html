@@ -52,6 +52,22 @@
         .btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(232,255,60,0.2);}
         .btn svg{width:18px;height:18px;}
 
+        /* WAITLIST */
+        .waitlist{max-width:440px;}
+        .waitlist-row{display:flex;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px;transition:border-color 0.2s;}
+        .waitlist-row:focus-within{border-color:var(--accent);}
+        .waitlist-row input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:15px;font-family:inherit;padding:10px 14px;min-width:0;}
+        .waitlist-row input::placeholder{color:var(--dim);}
+        .waitlist-row button{background:var(--accent);color:#0A0A0B;border:none;padding:12px 22px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:transform 0.2s;}
+        .waitlist-row button:hover{transform:translateY(-1px);}
+        .waitlist-row button:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+        .waitlist-note{font-size:12px;color:var(--dim);margin-top:10px;}
+        .waitlist-success{display:none;background:var(--surface);border:1px solid rgba(232,255,60,0.3);border-radius:14px;padding:16px 18px;max-width:440px;align-items:center;gap:14px;}
+        .waitlist-success.show{display:flex;}
+        .waitlist-check{width:36px;height:36px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#0A0A0B;font-weight:900;font-size:16px;flex-shrink:0;}
+        .waitlist-success-title{font-size:15px;font-weight:700;color:var(--text);}
+        .waitlist-success-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+
         /* PHONE MOCKUPS */
         .hero-phones{position:relative;display:flex;justify-content:center;align-items:center;height:560px;}
         .phone{width:240px;height:520px;background:var(--bg);border-radius:36px;border:2px solid var(--border);overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.5);position:absolute;}
@@ -142,14 +158,26 @@
             <div class="hero-text fade-up">
                 <div class="badge">
                     <span class="badge-dot"></span>
-                    Available on iOS
+                    Coming Soon to iOS
                 </div>
                 <h1>Find Your Sweat.<br><span class="accent">Anywhere.</span></h1>
                 <p>Search any city. See real photos. Get directions. Never miss a workout.</p>
-                <a href="#" class="btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                    Download for iOS
-                </a>
+
+                <div class="waitlist" id="waitlistWrap">
+                    <div class="waitlist-row">
+                        <input type="email" id="waitlistEmail" placeholder="Enter your email" autocomplete="email">
+                        <button id="waitlistBtn" onclick="joinWaitlist()">Join the Waitlist</button>
+                    </div>
+                    <p class="waitlist-note">Be the first to know when GymRoam launches. No spam.</p>
+                </div>
+
+                <div class="waitlist-success" id="waitlistSuccess">
+                    <div class="waitlist-check">&#10003;</div>
+                    <div>
+                        <div class="waitlist-success-title">You're on the list</div>
+                        <div class="waitlist-success-sub">We'll email you when GymRoam launches.</div>
+                    </div>
+                </div>
             </div>
             <div class="hero-phones fade-up">
                 <div class="phone-glow"></div>
@@ -269,6 +297,68 @@
     <script>
         const obs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting)el.target.classList.add('visible');});},{threshold:0.15});
         document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
+    </script>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+        import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyB9BRB-kO_LKsBj1-h7142ejbWyskwsMAQ",
+            authDomain: "gymroam-ad7dc.firebaseapp.com",
+            projectId: "gymroam-ad7dc",
+            storageBucket: "gymroam-ad7dc.firebasestorage.app",
+            messagingSenderId: "882063435578",
+            appId: "1:882063435578:web:waitlist"
+        });
+
+        const db = getFirestore(app);
+
+        // Check if user already joined (local check to prevent double-submit)
+        if (localStorage.getItem('gymroam_waitlist_joined') === 'true') {
+            document.getElementById('waitlistWrap').style.display = 'none';
+            document.getElementById('waitlistSuccess').classList.add('show');
+        }
+
+        window.joinWaitlist = async function() {
+            const input = document.getElementById('waitlistEmail');
+            const btn = document.getElementById('waitlistBtn');
+            const email = input.value.trim().toLowerCase();
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                input.style.borderColor = '#FF4D6D';
+                input.placeholder = 'Please enter a valid email';
+                input.value = '';
+                setTimeout(() => { input.style.borderColor = ''; input.placeholder = 'Enter your email'; }, 2500);
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Joining...';
+
+            try {
+                await addDoc(collection(db, 'waitlist'), {
+                    email: email,
+                    source: 'website',
+                    createdAt: serverTimestamp()
+                });
+                localStorage.setItem('gymroam_waitlist_joined', 'true');
+                document.getElementById('waitlistWrap').style.display = 'none';
+                document.getElementById('waitlistSuccess').classList.add('show');
+            } catch (e) {
+                console.error('Waitlist error:', e);
+                btn.disabled = false;
+                btn.textContent = 'Join the Waitlist';
+                input.placeholder = 'Something went wrong. Try again.';
+                input.value = '';
+            }
+        };
+
+        // Enter key submits
+        document.getElementById('waitlistEmail')?.addEventListener('keypress', e => {
+            if (e.key === 'Enter') window.joinWaitlist();
+        });
     </script>
 
 </body>
