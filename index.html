@@ -54,6 +54,10 @@
 
         /* WAITLIST */
         .waitlist{max-width:440px;}
+        .waitlist-type-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+        .type-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.2s;}
+        .type-btn:hover{border-color:var(--dim);color:var(--text);}
+        .type-btn.active{background:var(--accent);color:#0A0A0B;border-color:var(--accent);}
         .waitlist-row{display:flex;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:6px;transition:border-color 0.2s;}
         .waitlist-row:focus-within{border-color:var(--accent);}
         .waitlist-row input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-size:15px;font-family:inherit;padding:10px 14px;min-width:0;}
@@ -164,6 +168,12 @@
                 <p>Search any city. See real photos. Get directions. Never miss a workout.</p>
 
                 <div class="waitlist" id="waitlistWrap">
+                    <div class="waitlist-type-row">
+                        <button class="type-btn active" data-type="Gym Goer" onclick="selectType(this)">Gym Goer</button>
+                        <button class="type-btn" data-type="Trainer" onclick="selectType(this)">Trainer</button>
+                        <button class="type-btn" data-type="Gym Owner" onclick="selectType(this)">Gym Owner</button>
+                        <button class="type-btn" data-type="Influencer" onclick="selectType(this)">Influencer</button>
+                    </div>
                     <div class="waitlist-row">
                         <input type="email" id="waitlistEmail" placeholder="Enter your email" autocomplete="email">
                         <button id="waitlistBtn" onclick="joinWaitlist()">Join the Waitlist</button>
@@ -313,6 +323,14 @@
         });
 
         const db = getFirestore(app);
+        let selectedType = 'Gym Goer';
+
+        // Type selector
+        window.selectType = function(btn) {
+            document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedType = btn.dataset.type;
+        };
 
         // Check if user already joined (local check to prevent double-submit)
         if (localStorage.getItem('gymroam_waitlist_joined') === 'true') {
@@ -340,6 +358,7 @@
             try {
                 await addDoc(collection(db, 'waitlist'), {
                     email: email,
+                    type: selectedType,
                     source: 'website',
                     createdAt: serverTimestamp()
                 });
