@@ -309,6 +309,7 @@
         document.querySelectorAll('.fade-up').forEach(el=>obs.observe(el));
     </script>
 
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
         import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
@@ -363,14 +364,14 @@
                     createdAt: serverTimestamp()
                 });
 
-                // Send confirmation email to the user
-                await addDoc(collection(db, 'mail'), {
-                    to: [email],
-                    message: {
-                        subject: "You're on the GymRoam waitlist",
-                        html: '<div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;max-width:520px;margin:0 auto;background:#0A0A0B;color:#E8E8EE;padding:40px 32px;border-radius:16px;border:1px solid #1F1F26;"><div style="text-align:center;margin-bottom:32px;"><img src="https://gymroamapp.com/gymroam-logo.png" alt="GymRoam" width="56" height="56" style="border-radius:14px;"></div><h1 style="text-align:center;font-size:24px;font-weight:900;color:#E8FF3C;margin:0 0 12px;">You\'re on the list.</h1><p style="text-align:center;font-size:15px;color:#8A8A99;margin:0 0 32px;line-height:1.6;">Thanks for joining the GymRoam waitlist. We\'ll email you the moment the app launches on the App Store.</p><div style="background:#111114;border-radius:12px;padding:20px;margin-bottom:32px;"><p style="font-size:14px;font-weight:700;color:#E8E8EE;margin:0 0 12px;">What\'s coming:</p><p style="font-size:13px;color:#8A8A99;margin:0 0 6px;line-height:1.5;">Search gyms, studios, and wellness centers in any city</p><p style="font-size:13px;color:#8A8A99;margin:0 0 6px;line-height:1.5;">Real photos, phone numbers, and instant directions</p><p style="font-size:13px;color:#8A8A99;margin:0 0 6px;line-height:1.5;">Find verified trainers and coaches near you</p><p style="font-size:13px;color:#8A8A99;margin:0;line-height:1.5;">Save, compare, and connect with friends</p></div><div style="text-align:center;margin-bottom:32px;"><a href="https://instagram.com/gymroamapp" target="_blank" style="display:inline-block;color:#8A8A99;text-decoration:none;font-size:13px;font-weight:600;padding:8px 18px;border:1px solid #1F1F26;border-radius:8px;">Follow @gymroamapp for updates</a></div><div style="text-align:center;"><p style="font-size:18px;font-weight:800;color:#E8FF3C;letter-spacing:3px;margin:0;">FIND YOUR SWEAT. ANYWHERE.</p></div><hr style="border:none;border-top:1px solid #1F1F26;margin:32px 0 16px;"><p style="text-align:center;font-size:11px;color:#3A3A40;margin:0;"><a href="https://gymroamapp.com" style="color:#55555F;text-decoration:none;">gymroamapp.com</a> — A <a href="https://levestudios.com" style="color:#55555F;text-decoration:none;">Leve AI Studios</a> Company</p></div>'
-                    }
-                });
+                // Send confirmation email via EmailJS
+                try {
+                    await emailjs.send('service_byyy6jp', 'template_n71kuds', {
+                        to_email: email
+                    }, 'lgVF9b6WUJXBQV_P1');
+                } catch (emailErr) {
+                    console.log('Email send skipped:', emailErr);
+                }
 
                 localStorage.setItem('gymroam_waitlist_joined', 'true');
                 document.getElementById('waitlistWrap').style.display = 'none';
